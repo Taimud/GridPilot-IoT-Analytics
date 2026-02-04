@@ -2,102 +2,114 @@ import requests
 import json
 import time
 import random
+import datetime
 
-# CONFIG - CONNECT TO YOUR DATABASE
+# --- CONFIGURATION ---
 BASE_URL = "https://gridpilot-core-default-rtdb.firebaseio.com"
 DATA_URL = f"{BASE_URL}/generator_01.json"
-COMMAND_URL = f"{BASE_URL}/commands/generator_01.json"
-MARKET_URL = f"{BASE_URL}/market_settings.json"
+CONTROL_URL = f"{BASE_URL}/controls.json" # New Control Channel
 
-# NIGERIA-SPECIFIC DEFAULTS (These will be updated by the sync function)
-DIESEL_PRICE_PER_LITER = 1350  
-LITERS_PER_HOUR = 4.2          
-CURRENCY = "₦"
+# --- HARDWARE STATE ---
+gen_state = "OFF"     # The engine status
+grid_state = "CONNECTED" 
+water_pump = "OFF"
 
-system_state = "ON"
-current_temp = 25
-runtime_seconds = 0
+# Asset Values
+fuel_percent = 90.0
+water_level = 48.0
+solar_volts = 0.0
+gen_voltage = 0
+grid_voltage = 220
 
-def sync_market_data():
-    """Pulls the latest Diesel price and Burn Rate from your Settings page"""
-    global DIESEL_PRICE_PER_LITER, LITERS_PER_HOUR
+def check_commands():
+    """ Listens to the Web App for instructions """
+    global gen_state, grid_state, water_pump
     try:
-        res = requests.get(MARKET_URL)
-        if res.status_code == 200:
-            market = res.json()
-            if market:
-                DIESEL_PRICE_PER_LITER = float(market.get('diesel_price', 1350))
-                LITERS_PER_HOUR = float(market.get('burn_rate', 4.2))
+        res = requests.get(CONTROL_URL)
+        if res.status_code == 200 and res.json():
+            cmds = res.json()
+            
+            # 1. GENERATOR COMMAND
+            if 'generator' in cmds:
+                target = cmds['generator'].get('state', 'OFF')
+                if target == "ON" and gen_state == "OFF":
+                    print("📲 COMMAND RECEIVED: START ENGINE")
+                    gen_state = "ON"
+                elif target == "OFF" and gen_state == "ON":
+                    print("📲 COMMAND RECEIVED: STOP ENGINE")
+                    gen_state = "OFF"
+
+            # 2. GRID COMMAND
+            if 'grid_switch' in cmds:
+                target = cmds['grid_switch'].get('state', 'CONNECTED')
+                grid_state = target
+
+            # 3. WATER COMMAND
+            if 'water_pump' in cmds:
+                water_pump = cmds['water_pump'].get('state', 'OFF')
+
     except Exception as e:
-        print(f"Sync Error: {e}")
+        print(f"Signal Error: {e}")
 
-def check_safety_and_commands():
-    global system_state, current_temp
-    
-    # --- AUTO-PILOT SAFETY LOGIC ---
-    if system_state == "ON" and current_temp >= 100:
-        print(f"\n [AUTO-PILOT] 🚨 CRITICAL OVERHEAT ({current_temp}C)! EMERGENCY SHUTDOWN...")
-        requests.put(COMMAND_URL, json="STOP")
+def simulate_hardware():
+    global fuel_percent, water_level, gen_voltage, solar_volts, grid_voltage
+
+    # --- GENERATOR LOGIC ---
+    if gen_state == "ON":
+        # Engine revving up
+        if gen_voltage < 220: gen_voltage += 20 
+        else: gen_voltage = random.randint(220, 230)
+        fuel_percent -= 0.02 # Burning fuel
+    else:
+        # Engine cooling down
+        if gen_voltage > 0: gen_voltage -= 10
+        else: gen_voltage = 0
+
+    # --- WATER PUMP LOGIC ---
+    if water_pump == "ON":
+        water_level += 0.5 # Filling up
+        if water_level > 100: water_level = 100
+    else:
+        water_level -= 0.01 # Slow usage
+
+    # --- SOLAR LOGIC ---
+    # Sun is up (simple simulation)
+    solar_volts = 48.0 + random.uniform(-2, 2)
+
+    # --- GRID LOGIC ---
+    if grid_state == "CONNECTED":
+        grid_voltage = 220 + random.randint(-5, 5)
+    else:
+        grid_voltage = 0 # Isolated
+
+def push_telemetry():
+    """ Sends the sensor data back to the Web App """
+    status_msg = "System Nominal"
+    if gen_state == "ON": status_msg = "Engine Running"
+    if grid_state == "ISOLATED": status_msg = "Grid Disconnected"
+
+    payload = {
+        "fuel_percent": round(fuel_percent, 1),
+        "water_level": int(water_level),
+        "solar_battery_volts": round(solar_volts, 1),
+        "grid_voltage": grid_voltage,
+        "gen_voltage": gen_voltage, # Sending Gen Voltage now
+        "gas_weight": 12.5, # Static for now
+        "status_message": status_msg
+    }
     
     try:
-        res = requests.get(COMMAND_URL)
-        if res.status_code == 200:
-            cmd = res.json()
-            if cmd == "STOP": system_state = "OFF"
-            elif cmd == "START": system_state = "ON"
-    except: pass
+        requests.put(DATA_URL, json=payload)
+        print(f"📡 STATUS: Gen={gen_state} ({gen_voltage}V) | Grid={grid_state} | Water={water_pump}")
+    except:
+        pass
 
-def get_enterprise_data():
-    global system_state, current_temp, runtime_seconds
-    
-    # Simulating Fuel consumption
-    fuel_pct = max(0, 90 - (runtime_seconds / 60)) 
-    
-    # DYNAMIC COST CALCULATION (Using synced Market Data)
-    hours_run = runtime_seconds / 3600
-    liters_used = hours_run * LITERS_PER_HOUR
-    total_cost_naira = round(liters_used * DIESEL_PRICE_PER_LITER, 2)
-    
-    if system_state == "ON" and fuel_pct > 0:
-        minutes_remaining = fuel_pct  
-        runtime_seconds += 2 
-    else:
-        minutes_remaining = 0
-
-    if system_state == "OFF":
-        oil = 0
-        if current_temp > 30: current_temp -= 2 
-    else:
-        oil = random.randint(45, 55)
-        if current_temp < 105: current_temp += 4 
-    
-    health = 100
-    if current_temp > 90: health -= 30
-    if fuel_pct < 20: health -= 20
-    if oil < 30 and system_state == "ON": health -= 40
-
-    return {
-        "fuel_percent": round(fuel_pct, 1),
-        "engine_temp": current_temp,
-        "oil_pressure": oil,
-        "health_score": max(0, health),
-        "total_cost": f"{CURRENCY}{total_cost_naira:,.2f}", 
-        "system_state": system_state,
-        "grid_voltage": random.randint(210, 230) if system_state == "ON" else 0,
-        "status_message": f"TTE: {int(minutes_remaining)} mins" if system_state == "ON" else "SYSTEM IDLE",
-        "solar_battery_volts": round(random.uniform(48.5, 53.5), 1),
-        "water_level": random.randint(40, 95),
-        "region": "Lagos, NG"
-    }
-
-print("--- GRID-PILOT AFRICA ENTERPRISE CORE ONLINE ---")
+# --- MAIN LOOP ---
+print("--- GRID-PILOT HARDWARE CONTROLLER ONLINE ---")
+print("Waiting for Web Commands...")
 
 while True:
-    sync_market_data() # Step 1: Check if prices changed on the web
-    check_safety_and_commands() # Step 2: Check for STOP/START
-    data = get_enterprise_data() # Step 3: Run the simulation
-    requests.put(DATA_URL, json=data) # Step 4: Upload to Cloud
-    
-    state_icon = "🟢" if system_state == "ON" else "🔴"
-    print(f" {state_icon} Fuel: {data['fuel_percent']}% | Cost: {data['total_cost']} | Rate: {LITERS_PER_HOUR}L/h")
-    time.sleep(2)
+    check_commands()    # 1. Listen for Web
+    simulate_hardware() # 2. React to physics
+    push_telemetry()    # 3. Update Web
+    time.sleep(1)

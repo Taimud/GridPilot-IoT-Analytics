@@ -3,222 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid-Pilot Intelligence</title>
+    <title>GridPilot | Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
+    </script>
     <style>
-        :root { 
-            --accent: #00ccff; 
-            --accent-glow: rgba(0, 204, 255, 0.2);
-            --success: #00ff99; 
-            --bg: #050505; 
-            --card: #0f0f0f; 
-            --text-muted: #666;
-        }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--bg); 
-            color: white; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* NAVIGATION PILL */
-        .nav-pill { 
-            background: #111; 
-            border: 1px solid #222; 
-            border-radius: 50px; 
-            padding: 5px; 
-            display: flex; 
-            gap: 5px; 
-            margin-bottom: 30px; 
-        }
-        .nav-item { 
-            padding: 10px 25px; 
-            border-radius: 40px; 
-            text-decoration: none; 
-            color: var(--text-muted); 
-            font-size: 12px; 
-            font-weight: 700; 
-            letter-spacing: 0.5px; 
-            transition: 0.3s; 
-        }
-        .nav-item.active { 
-            background: #222; 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-        }
-        .nav-item:hover { color: white; }
-
-        /* LAYOUT */
-        .grid-container { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-            width: 100%; 
-            max-width: 800px; 
-        }
-        .full-width { grid-column: span 2; }
-
-        /* BEAUTIFUL CARDS */
-        .card { 
-            background: var(--card); 
-            border: 1px solid #1a1a1a; 
-            border-radius: 20px; 
-            padding: 25px; 
-            position: relative; 
-            overflow: hidden; 
-            transition: transform 0.2s;
-        }
-        /* The "Glow" Effect */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, #333, transparent);
-        }
-
-        h2 { 
-            font-size: 11px; 
-            color: var(--text-muted); 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            margin: 0 0 15px 0; 
-            font-weight: 600; 
-        }
-
-        /* HERO TYPOGRAPHY */
-        .big-stat { 
-            font-size: 48px; 
-            font-weight: 800; 
-            background: -webkit-linear-gradient(45deg, #fff, #aaa); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            line-height: 1;
-            margin-bottom: 5px;
-        }
-        .sub-stat { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-
-        .accent-text { color: var(--accent); }
-        .success-text { color: var(--success); }
-
-        /* RECOMMENDATION BADGE */
-        .rec-badge { 
-            background: rgba(0, 255, 153, 0.1); 
-            border: 1px solid rgba(0, 255, 153, 0.2); 
-            color: var(--success); 
-            padding: 12px; 
-            border-radius: 12px; 
-            font-size: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            margin-top: 15px; 
-        }
-
-        /* HEALTH BARS - ROUNDED & SLEEK */
-        .health-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #888; }
-        .progress-bg { width: 100%; background: #222; height: 6px; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease; }
-
-        @media (max-width: 600px) {
-            .grid-container { grid-template-columns: 1fr; }
-            .full-width { grid-column: span 1; }
-        }
+        :root { --primary: #2563eb; --bg-body: #f3f4f6; --text-dark: #1e293b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; padding-bottom: 80px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .card-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; transition: 0.3s; }
+        .pill-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 15px; scrollbar-width: none; }
+        .pill { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; transition: 0.2s; border: 1px solid transparent; color: rgba(255,255,255,0.8); }
+        .pill:hover { background: rgba(255,255,255,0.3); }
+        .pill.active { background: white; color: var(--primary); font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .time-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.1); padding: 4px; border-radius: 12px; width: fit-content; margin-left: auto; margin-right: auto; }
+        .time-btn { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; opacity: 0.7; color: white; }
+        .time-btn.active { background: white; color: var(--primary); opacity: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .stat-row:last-child { border-bottom: none; }
+        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
+        .nav-btn i { font-size: 20px; }
+        .nav-label { font-size: 10px; font-weight: 600; }
+        .nav-btn.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="nav-pill">
-        <a href="index.html" class="nav-item">COMMAND</a>
-        <a href="#" class="nav-item active">INTELLIGENCE</a>
-        <a href="login.html" class="nav-item">LOGOUT</a>
+<div class="app-frame">
+    <div class="header">
+        <h1 style="color:#1e293b">Analytics</h1>
+        <p style="color:#64748b; font-size:13px; margin-top:5px;">Historical Usage & Trends</p>
     </div>
 
-    <div class="grid-container">
-        
-        <div class="card full-width" style="border-top: 2px solid var(--accent);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                <div>
-                    <h2>Predictive Runtime</h2>
-                    <div class="big-stat">4<span style="font-size:24px; color:#444">h</span> 12<span style="font-size:24px; color:#444">m</span></div>
-                    <div class="sub-stat">Until tank reaches 0%</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 18px; color: var(--text-muted); font-weight: bold;">18:45</div>
-                    <div class="sub-stat">Est. Shutdown</div>
-                </div>
-            </div>
-            <div style="margin-top: 20px; height: 120px;">
-                <canvas id="predictionChart"></canvas>
-            </div>
+    <div class="card card-blue" id="chartCard" style="height: 380px;">
+        <div class="pill-scroll">
+            <div class="pill active" id="pill-gen" onclick="setUtility('gen', this)">Generator</div>
+            <div class="pill" id="pill-solar" onclick="setUtility('solar', this)">Solar</div>
+            <div class="pill" id="pill-gas" onclick="setUtility('gas', this)">Gas Cylinder</div>
+            <div class="pill" id="pill-water" onclick="setUtility('water', this)">Water</div>
+            <div class="pill" id="pill-grid" onclick="setUtility('grid', this)">Grid</div>
         </div>
-
-        <div class="card">
-            <h2>Cost Efficiency</h2>
-            <div class="big-stat" style="-webkit-text-fill-color: var(--success); background: none;">$142</div>
-            <div class="sub-stat">Saved this month vs. Grid</div>
-            
-            <div class="rec-badge">
-                <span style="font-size: 16px;">☀️</span> 
-                <div>
-                    <div style="font-weight: bold;">Solar Switch Active</div>
-                    <div style="font-size: 10px; opacity: 0.8;">Weather is optimal.</div>
-                </div>
-            </div>
+        <div class="time-row">
+            <div class="time-btn active" onclick="setTime('daily', this)">Daily</div>
+            <div class="time-btn" onclick="setTime('weekly', this)">Weekly</div>
+            <div class="time-btn" onclick="setTime('monthly', this)">Monthly</div>
         </div>
-
-        <div class="card">
-            <h2>Asset Health</h2>
-            
-            <div class="health-row"><span>Vibration Analysis</span><span style="color:var(--success)">Stable</span></div>
-            <div class="progress-bg"><div class="progress-fill" style="width: 5%; background: var(--success);"></div></div>
-
-            <div class="health-row"><span>Oil Life Remaining</span><span style="color: #ffcc00;">Change Soon</span></div>
-            <div class="progress-bg"><div class="progress-fill" style="width: 85%; background: #ffcc00;"></div></div>
-        </div>
+        <div style="height: 240px;"><canvas id="mainChart"></canvas></div>
     </div>
 
-    <script>
-        const ctx = document.getElementById('predictionChart').getContext('2d');
-        
-        // GRADIENT FILL FOR CHART
-        let gradient = ctx.createLinearGradient(0, 0, 0, 200);
-        gradient.addColorStop(0, 'rgba(0, 204, 255, 0.2)');
-        gradient.addColorStop(1, 'rgba(0, 204, 255, 0)');
+    <div class="card">
+        <h3 style="margin:0 0 15px 0; font-size:16px;" id="reportTitle">Generator Efficiency</h3>
+        <div class="stat-row"><span style="color:#64748b" id="label1">Total Fuel Burned</span><strong id="val1">142 Liters</strong></div>
+        <div class="stat-row"><span style="color:#64748b" id="label2">Est. Cost (₦)</span><strong style="color:#ef4444" id="val2">-₦ 191,700</strong></div>
+        <div class="stat-row"><span style="color:#64748b" id="label3">Efficiency Score</span><strong style="color:#10b981" id="val3">A (High)</strong></div>
+    </div>
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM'],
-                datasets: [{
-                    label: 'Fuel %',
-                    data: [45, 40, 35, 30, 25, 20, 0],
-                    borderColor: '#00ccff',
-                    backgroundColor: gradient,
-                    borderWidth: 2,
-                    pointRadius: 0, // Hides dots for a cleaner look
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.4,
-                    segment: {
-                        borderDash: ctx => ctx.p0DataIndex >= 5 ? [5, 5] : undefined,
-                        borderColor: ctx => ctx.p0DataIndex >= 5 ? '#444' : '#00ccff'
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                scales: {
-                    x: { display: false }, // Hide X axis labels
-                    y: { display: false }  // Hide Y axis labels
-                }
-            }
-        });
-    </script>
+    <div class="nav-bar">
+        <button class="nav-btn" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
+        <button class="nav-btn active" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
+        <button class="nav-btn" onclick="location.href='notifications.html'"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
+        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
+        <button class="nav-btn" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
+    </div>
+</div>
+
+<script>
+    const dataStore = {
+        gen: { daily: [85,82,78,75,70,68,90], weekly: [90,85,80,75], monthly: [80,70,60,90,80,70,60,50,40,90,80,75], labels: ["Burned", "Cost", "Efficiency"], stats: ["142 Liters", "-₦ 191,700", "B+"] },
+        solar: { daily: [45,48,50,52,49,45,40], weekly: [48,50,52,49], monthly: [45,46,48,50,52,53,50,48,45,42,40,38], labels: ["Generated", "Savings", "Peak Volts"], stats: ["320 kWh", "+₦ 54,000", "53.2 V"] },
+        gas: { daily: [12.5,12.4,12.3,12.1,12.0,11.9,11.8], weekly: [12.5,11.0,9.5,8.0], monthly: [12.5,11,10,9,8,7,6,5,4,3,2,1], labels: ["Max Capacity", "Last Refilled", "Est. Run Out"], stats: ["12.5 kg", "2 Days Ago", "18 Days"] },
+        water: { daily: [60,58,55,52,50,48,80], weekly: [80,70,60,50], monthly: [90,80,70,60,50,40,90,80,70,60,50,40], labels: ["Consumed", "Pump Runs", "Quality"], stats: ["450 Liters", "12 Cycles", "Clean"] },
+        grid: { daily: [220,0,0,215,225,220,0], weekly: [18,12,24,20], monthly: [200,180,210,220,200,180,150,100,200,210,220,200], labels: ["Uptime", "Outages", "Avg Voltage"], stats: ["64 Hours", "12 Events", "215 V"] }
+    };
+    
+    let currentUtil='gen', currentTime='daily';
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    let mainChart = new Chart(ctx, { type: 'line', data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{ label: 'Usage', data: dataStore.gen.daily, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 3, tension: 0.4, pointRadius: 3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'rgba(255,255,255,0.8)' }, grid: { display: false } }, y: { ticks: { color: 'rgba(255,255,255,0.8)' }, grid: { color: 'rgba(255,255,255,0.1)' } } } } });
+
+    function setUtility(util, btn) {
+        currentUtil = util;
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        const d = dataStore[util];
+        document.getElementById('reportTitle').innerText = util.toUpperCase() + " REPORT";
+        document.getElementById('label1').innerText = d.labels[0]; document.getElementById('val1').innerText = d.stats[0];
+        document.getElementById('label2').innerText = d.labels[1]; document.getElementById('val2').innerText = d.stats[1];
+        document.getElementById('label3').innerText = d.labels[2]; document.getElementById('val3').innerText = d.stats[2];
+        updateChartData();
+    }
+    function setTime(time, btn) {
+        currentTime = time;
+        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateChartData();
+    }
+    function updateChartData() {
+        const d = dataStore[currentUtil];
+        let newLabels = (currentTime==='daily') ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] : (currentTime==='weekly') ? ['Wk 1','Wk 2','Wk 3','Wk 4'] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        mainChart.data.labels = newLabels;
+        mainChart.data.datasets[0].data = d[currentTime];
+        mainChart.update();
+    }
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const view = urlParams.get('view');
+        if(view && dataStore[view]) {
+            setUtility(view, document.getElementById("pill-" + view));
+        } else {
+            setUtility('gen', document.getElementById('pill-gen'));
+        }
+    }
+</script>
 </body>
 </html>

@@ -3,160 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid-Pilot Command | Titanium Gold</title>
+    <title>GridPilot | Home</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        // GATEKEEPER: PROTECT THIS PAGE
+        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
+    </script>
     <style>
-        :root { 
-            --accent: #00ccff; 
-            --danger: #ff3333; 
-            --success: #00ff99; 
-            --bg: #050505; 
-            --card: #0f0f0f; 
-            --text-muted: #666;
-        }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); color: white; margin: 0; padding: 20px; 
-            display: flex; flex-direction: column; align-items: center; 
-        }
-
-        /* NAVIGATION */
-        .nav-pill { background: #111; border: 1px solid #222; border-radius: 50px; padding: 5px; display: flex; gap: 5px; margin-bottom: 25px; }
-        .nav-item { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: var(--text-muted); font-size: 11px; font-weight: 700; transition: 0.3s; }
-        .nav-item.active { background: #222; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-
-        /* DASHBOARD GRID */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 1000px; }
-        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #333, transparent); }
-
-        h2 { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1px; }
-        .val { font-size: 26px; font-weight: 700; margin-bottom: 5px; }
-        .unit { font-size: 11px; color: var(--text-muted); }
-
-        /* BARS */
-        .bar-bg { width: 100%; background: #222; height: 4px; border-radius: 2px; margin-top: 10px; }
-        .bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
-
-        /* SECTIONS */
-        .chart-section { grid-column: span 3; height: 260px; }
-        .log-section { grid-column: span 1; height: 260px; overflow-y: auto; font-family: monospace; font-size: 9px; color: #444; }
-        .footer-section { grid-column: span 4; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px; }
-
-        /* STATUS BADGE */
-        .header-row { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .status-badge { background: rgba(0, 255, 153, 0.1); border: 1px solid rgba(0, 255, 153, 0.2); color: var(--success); padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
-        .pulsing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        /* BUTTONS */
-        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 11px; transition: 0.3s; }
-        .btn-stop { background: rgba(255, 51, 51, 0.1); color: var(--danger); border: 1px solid rgba(255, 51, 51, 0.2); }
-        .btn-start { background: rgba(0, 255, 153, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 153, 0.2); }
+        :root { --primary: #2563eb; --glass-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); --glass-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); --bg-body: #f3f4f6; --text-dark: #1e293b; --success: #10b981; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 90px; }
+        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .header h1 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+        .header-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: white; border-radius: 24px; padding: 18px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08); position: relative; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-blue { background: var(--glass-blue); color: white; }
+        .card-dark { background: var(--glass-dark); color: white; }
+        .card-title { font-size: 13px; font-weight: 600; opacity: 0.9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .click-area { cursor: pointer; flex-grow: 1; }
+        .power-btn { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.3s; z-index: 10; }
+        .btn-off { background: rgba(0,0,0,0.2); color: white; }
+        .card-dark .btn-off { background: rgba(255,255,255,0.1); }
+        .btn-on { background: white; color: var(--success); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .card-dark .btn-on { background: var(--success); color: white; box-shadow: 0 0 15px var(--success); }
+        .val-big { font-size: 28px; font-weight: 800; }
+        .sub-text { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+        .circle-gauge { width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(white var(--deg), rgba(255,255,255,0.2) 0deg); display: flex; align-items: center; justify-content: center; margin: 0 auto; position: relative; cursor: pointer; }
+        .circle-gauge::before { content: ''; position: absolute; width: 84px; height: 84px; background: #3b82f6; border-radius: 50%; }
+        .circle-val { position: relative; font-size: 22px; font-weight: 800; z-index: 2; }
+        .icon-box { height: 50px; margin: 5px 0 10px; position: relative; cursor: pointer; }
+        .css-gas { width: 26px; height: 46px; background: #10b981; border-radius: 8px; position: absolute; left: 0; bottom: 0; }
+        .css-gas::before { content: ''; position: absolute; top: -4px; left: 5px; width: 16px; height: 4px; background: #059669; }
+        .css-gen { width: 44px; height: 36px; background: #f59e0b; border-radius: 4px; position: absolute; left: 0; bottom: 0; border-bottom: 4px solid #b45309; }
+        .css-gen::before { content: ''; position: absolute; top: 5px; left: 5px; width: 24px; height: 16px; background: rgba(0,0,0,0.2); border-radius: 2px; }
+        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
+        .nav-btn i { font-size: 20px; }
+        .nav-label { font-size: 10px; font-weight: 600; }
+        .nav-btn.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="nav-pill">
-        <a href="#" class="nav-item active">COMMAND</a>
-        <a href="analytics.html" class="nav-item">INTELLIGENCE</a>
-        <a href="settings.html" class="nav-item">SETTINGS</a>
-        <a href="login.html" class="nav-item">LOGOUT</a>
-    </div>
-
-    <div class="header-row">
-        <div style="font-size: 18px; font-weight: 800;">⚡ GRID-PILOT <span style="color: var(--accent)">TITANIUM</span></div>
-        <div class="status-badge"><div class="pulsing-dot"></div> SYSTEM ONLINE</div>
+<div class="app-frame">
+    <div class="header">
+        <div><div class="header-sub">Utility Manager</div><h1>GridPilot</h1></div>
+        <div style="background:white; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; color:#64748b; box-shadow:0 2px 5px rgba(0,0,0,0.05);"><img src="https://flagcdn.com/w20/ng.png" style="width:14px; vertical-align:middle;"> Lagos</div>
     </div>
 
     <div class="dashboard-grid">
-        <div class="card">
-            <h2>Grid Power</h2>
-            <div class="val" id="grid_volts">0</div>
-            <span class="unit">VOLTS (AC)</span>
+        <div class="card card-blue" style="grid-row: span 2;">
+            <div class="card-title"><span class="click-area" onclick="go('water')">Water Pump <i class="fas fa-chevron-right" style="font-size:10px"></i></span><button class="power-btn btn-off" id="btn-water" onclick="togglePower('water')"><i class="fas fa-power-off"></i></button></div>
+            <div class="circle-gauge" id="water_gauge" style="--deg: 0deg;" onclick="go('water')"><div class="circle-val"><span id="water_val">--</span>%</div></div>
+            <div class="sub-text" style="text-align:center; margin-top:20px;"><span id="status-water">Pump is OFF</span><br>Predictive AI: Refill in <span id="water_days">--</span> days</div>
         </div>
-        <div class="card">
-            <h2>Diesel Reserve</h2>
-            <div class="val"><span id="fuel_val">--</span>%</div>
-            <div class="bar-bg"><div id="fuel_bar" class="bar-fill" style="background: #ffcc00; width: 0%"></div></div>
-        </div>
-        <div class="card">
-            <h2>Water Reserve</h2>
-            <div class="val"><span id="water_val">--</span>%</div>
-            <div class="bar-bg"><div id="water_bar" class="bar-fill" style="background: #0066ff; width: 0%"></div></div>
-        </div>
-        <div class="card">
-            <h2>Solar Array</h2>
-            <div class="val" id="solar_val">--</div>
-            <span class="unit">BATTERY VDC</span>
-        </div>
-
-        <div class="card chart-section">
-            <h2>Industrial Health Trends</h2>
-            <canvas id="mainChart"></canvas>
-        </div>
-
-        <div class="card log-section" id="event_log">
-            <div style="border-bottom:1px solid #222; padding-bottom:5px; margin-bottom:8px; color: #888;">SYSTEM LOG</div>
-        </div>
-
-        <div class="footer-section">
-            <div class="card">
-                <h2>Alert Config</h2>
-                <div style="display:flex; justify-content:space-between; font-size:11px; color:#555; margin-bottom: 8px;">
-                    <span>Email Alerts</span><input type="checkbox" checked>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:11px; color:#555;">
-                    <span>SMS (+234)</span><input type="checkbox">
-                </div>
-            </div>
-            <div class="card">
-                <h2>Support Hub</h2>
-                <input type="text" placeholder="Issue..." style="width:100%; background:#000; border:1px solid #222; padding:8px; color:white; border-radius:5px;">
-            </div>
-            <div class="card">
-                <h2>Safety Switch</h2>
-                <button id="main_switch" class="btn btn-stop" onclick="toggleSystem()">SHUT DOWN</button>
-            </div>
-        </div>
+        <div class="card card-blue" style="height:140px;" onclick="go('gen')"><div class="card-title">Usage Trend <i class="fas fa-chart-line"></i></div><canvas id="miniChart"></canvas></div>
+        <div class="card" onclick="go('gas')"><div class="card-title" style="color:#333">Gas Cylinder <i class="fas fa-ellipsis-h" style="color:#ccc"></i></div><div class="icon-box"><div class="css-gas"></div></div><div class="val-big"><span id="gas_val">--</span><small style="font-size:14px; color:#aaa">kg</small></div><div class="sub-text" id="gas_msg">Safe Levels</div></div>
+        <div class="card card-dark"><div class="card-title"><span class="click-area" onclick="go('gen')">Generator <i class="fas fa-bolt" style="color:#f59e0b"></i></span><button class="power-btn btn-off" id="btn-gen" onclick="togglePower('gen')"><i class="fas fa-power-off"></i></button></div><div class="icon-box" onclick="go('gen')"><div class="css-gen"></div></div><div class="val-big"><span id="fuel_val">--</span>%</div><div class="sub-text" id="status-gen">Engine Stopped</div></div>
+        <div class="card" onclick="go('solar')"><div class="card-title" style="color:#333">Solar <i class="fas fa-sun" style="color:#f59e0b"></i></div><div class="val-big" style="margin-top:10px;"><span id="solar_val">--</span>V</div><div class="sub-text">Sustainability metrics</div></div>
+        <div class="card card-blue"><div class="card-title"><span class="click-area" onclick="go('grid')">Grid Power <i class="fas fa-plug"></i></span><button class="power-btn btn-on" id="btn-grid" onclick="togglePower('grid')"><i class="fas fa-plug"></i></button></div><div class="val-big" style="margin-top:10px;"><span id="grid_val">--</span>V</div><div class="sub-text" id="status-grid">Connected</div></div>
     </div>
 
-<script>
-    const DATA_URL = "https://gridpilot-core-default-rtdb.firebaseio.com/generator_01.json";
-    const CMD_URL = "https://gridpilot-core-default-rtdb.firebaseio.com/commands/generator_01.json";
-    let state = "ON";
+    <div class="nav-bar">
+        <button class="nav-btn active" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
+        <button class="nav-btn" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
+        <button class="nav-btn" onclick="location.href='notifications.html'"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
+        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
+        <button class="nav-btn" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
+    </div>
+</div>
 
+<script>
+    function go(view) { location.href = `analytics.html?view=${view}`; }
+    async function togglePower(device) {
+        const btn = document.getElementById(`btn-${device}`);
+        const isTurningOn = btn.classList.contains('btn-off');
+        let commandPath = "", payload = {};
+        if(device === 'gen') { commandPath = "controls/generator"; payload = { state: isTurningOn ? "ON" : "OFF" }; } 
+        else if (device === 'water') { commandPath = "controls/water_pump"; payload = { state: isTurningOn ? "ON" : "OFF" }; }
+        else if (device === 'grid') { commandPath = "controls/grid_switch"; payload = { state: isTurningOn ? "CONNECTED" : "ISOLATED" }; }
+        const CONTROL_URL = `https://gridpilot-core-default-rtdb.firebaseio.com/${commandPath}.json`;
+        try {
+            btn.style.opacity = "0.5"; 
+            await fetch(CONTROL_URL, { method: 'PUT', body: JSON.stringify(payload) });
+            if (isTurningOn) { btn.classList.remove('btn-off'); btn.classList.add('btn-on'); } 
+            else { btn.classList.remove('btn-on'); btn.classList.add('btn-off'); }
+        } catch (error) { alert("Connection Failed"); } finally { btn.style.opacity = "1"; }
+    }
+    const URL = "https://gridpilot-core-default-rtdb.firebaseio.com/generator_01.json";
     async function update() {
         try {
-            const r = await fetch(DATA_URL); const d = await r.json();
+            let d = await (await fetch(URL)).json();
             if(!d) return;
-            document.getElementById('grid_volts').innerText = d.grid_voltage;
-            document.getElementById('fuel_val').innerText = d.fuel_percent;
             document.getElementById('water_val').innerText = d.water_level;
+            document.getElementById('water_gauge').style.setProperty('--deg', (d.water_level*3.6)+'deg');
+            document.getElementById('water_days').innerText = Math.floor(d.water_level/8);
+            document.getElementById('gas_val').innerText = d.gas_weight || 12.5;
+            if(d.gas_leak) { document.getElementById('gas_msg').innerText = "⚠️ LEAK DETECTED"; document.getElementById('gas_msg').style.color = "#ef4444"; } 
+            else { document.getElementById('gas_msg').innerText = "Safe Levels"; document.getElementById('gas_msg').style.color = "#888"; }
+            document.getElementById('fuel_val').innerText = d.fuel_percent;
             document.getElementById('solar_val').innerText = d.solar_battery_volts;
-            document.getElementById('fuel_bar').style.width = d.fuel_percent + "%";
-            document.getElementById('water_bar').style.width = d.water_level + "%";
-            
-            state = d.system_state;
-            const btn = document.getElementById('main_switch');
-            btn.innerText = state === "ON" ? "SHUT DOWN" : "START ENGINE";
-            btn.className = state === "ON" ? "btn btn-stop" : "btn btn-start";
-        } catch(e) {}
+            if(d.status_message && d.status_message.includes("Generator Active")) { document.getElementById('status-gen').innerText = "Engine Running"; document.getElementById('status-gen').style.color = "#10b981"; document.getElementById('btn-gen').classList.add('btn-on'); document.getElementById('btn-gen').classList.remove('btn-off'); } 
+            else { document.getElementById('status-gen').innerText = "Engine Stopped"; document.getElementById('status-gen').style.color = "#888"; document.getElementById('btn-gen').classList.remove('btn-on'); document.getElementById('btn-gen').classList.add('btn-off'); }
+            document.getElementById('grid_val').innerText = d.grid_voltage;
+            const gridText = document.getElementById('status-grid');
+            const gridBtn = document.getElementById('btn-grid');
+            if (d.grid_switch_state === "ISOLATED") { gridText.innerText = "Manually Isolated"; gridText.style.color = "#888"; gridBtn.classList.remove('btn-on'); gridBtn.classList.add('btn-off'); } 
+            else { gridBtn.classList.add('btn-on'); gridBtn.classList.remove('btn-off'); if (d.grid_voltage === 0) { gridText.innerText = "⚠️ BLACKOUT"; gridText.style.color = "#ef4444"; } else if (d.grid_voltage < 180) { gridText.innerText = "⚠️ Low Current"; gridText.style.color = "#f59e0b"; } else { gridText.innerText = "Active Supply"; gridText.style.color = "white"; } }
+        } catch(e){}
     }
-
-    async function toggleSystem() {
-        let cmd = (state === "ON") ? "STOP" : "START";
-        await fetch(CMD_URL, { method: 'PUT', body: JSON.stringify(cmd) });
-    }
-
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: { labels: ['','','','','','',''], datasets: [{ data:[75,72,78,74,70,68,65], borderColor:'#00ccff', tension:0.4, pointRadius:0 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}} }
-    });
-
-    setInterval(update, 1200);
+    new Chart(document.getElementById('miniChart'), { type:'line', data:{labels:[1,2,3,4,5], datasets:[{data:[12,19,15,22,25], borderColor:'white', tension:0.4, pointRadius:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}}} });
+    setInterval(update, 1000);
 </script>
 </body>
 </html>
