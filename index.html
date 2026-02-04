@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid-Pilot Command | Titanium Gold</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { 
+            --accent: #00ccff; 
+            --danger: #ff3333; 
+            --success: #00ff99; 
+            --bg: #050505; 
+            --card: #0f0f0f; 
+            --text-muted: #666;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); color: white; margin: 0; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+
+        /* NAVIGATION */
+        .nav-pill { background: #111; border: 1px solid #222; border-radius: 50px; padding: 5px; display: flex; gap: 5px; margin-bottom: 25px; }
+        .nav-item { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: var(--text-muted); font-size: 11px; font-weight: 700; transition: 0.3s; }
+        .nav-item.active { background: #222; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 1000px; }
+        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #333, transparent); }
+
+        h2 { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1px; }
+        .val { font-size: 26px; font-weight: 700; margin-bottom: 5px; }
+        .unit { font-size: 11px; color: var(--text-muted); }
+
+        /* BARS */
+        .bar-bg { width: 100%; background: #222; height: 4px; border-radius: 2px; margin-top: 10px; }
+        .bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+        /* SECTIONS */
+        .chart-section { grid-column: span 3; height: 260px; }
+        .log-section { grid-column: span 1; height: 260px; overflow-y: auto; font-family: monospace; font-size: 9px; color: #444; }
+        .footer-section { grid-column: span 4; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px; }
+
+        /* STATUS BADGE */
+        .header-row { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .status-badge { background: rgba(0, 255, 153, 0.1); border: 1px solid rgba(0, 255, 153, 0.2); color: var(--success); padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .pulsing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* BUTTONS */
+        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 11px; transition: 0.3s; }
+        .btn-stop { background: rgba(255, 51, 51, 0.1); color: var(--danger); border: 1px solid rgba(255, 51, 51, 0.2); }
+        .btn-start { background: rgba(0, 255, 153, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 153, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="nav-pill">
+        <a href="#" class="nav-item active">COMMAND</a>
+        <a href="analytics.html" class="nav-item">INTELLIGENCE</a>
+        <a href="settings.html" class="nav-item">SETTINGS</a>
+        <a href="login.html" class="nav-item">LOGOUT</a>
+    </div>
+
+    <div class="header-row">
+        <div style="font-size: 18px; font-weight: 800;">⚡ GRID-PILOT <span style="color: var(--accent)">TITANIUM</span></div>
+        <div class="status-badge"><div class="pulsing-dot"></div> SYSTEM ONLINE</div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>Grid Power</h2>
+            <div class="val" id="grid_volts">0</div>
+            <span class="unit">VOLTS (AC)</span>
+        </div>
+        <div class="card">
+            <h2>Diesel Reserve</h2>
+            <div class="val"><span id="fuel_val">--</span>%</div>
+            <div class="bar-bg"><div id="fuel_bar" class="bar-fill" style="background: #ffcc00; width: 0%"></div></div>
+        </div>
+        <div class="card">
+            <h2>Water Reserve</h2>
+            <div class="val"><span id="water_val">--</span>%</div>
+            <div class="bar-bg"><div id="water_bar" class="bar-fill" style="background: #0066ff; width: 0%"></div></div>
+        </div>
+        <div class="card">
+            <h2>Solar Array</h2>
+            <div class="val" id="solar_val">--</div>
+            <span class="unit">BATTERY VDC</span>
+        </div>
+
+        <div class="card chart-section">
+            <h2>Industrial Health Trends</h2>
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <div class="card log-section" id="event_log">
+            <div style="border-bottom:1px solid #222; padding-bottom:5px; margin-bottom:8px; color: #888;">SYSTEM LOG</div>
+        </div>
+
+        <div class="footer-section">
+            <div class="card">
+                <h2>Alert Config</h2>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#555; margin-bottom: 8px;">
+                    <span>Email Alerts</span><input type="checkbox" checked>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#555;">
+                    <span>SMS (+234)</span><input type="checkbox">
+                </div>
+            </div>
+            <div class="card">
+                <h2>Support Hub</h2>
+                <input type="text" placeholder="Issue..." style="width:100%; background:#000; border:1px solid #222; padding:8px; color:white; border-radius:5px;">
+            </div>
+            <div class="card">
+                <h2>Safety Switch</h2>
+                <button id="main_switch" class="btn btn-stop" onclick="toggleSystem()">SHUT DOWN</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const DATA_URL = "https://gridpilot-core-default-rtdb.firebaseio.com/generator_01.json";
+    const CMD_URL = "https://gridpilot-core-default-rtdb.firebaseio.com/commands/generator_01.json";
+    let state = "ON";
+
+    async function update() {
+        try {
+            const r = await fetch(DATA_URL); const d = await r.json();
+            if(!d) return;
+            document.getElementById('grid_volts').innerText = d.grid_voltage;
+            document.getElementById('fuel_val').innerText = d.fuel_percent;
+            document.getElementById('water_val').innerText = d.water_level;
+            document.getElementById('solar_val').innerText = d.solar_battery_volts;
+            document.getElementById('fuel_bar').style.width = d.fuel_percent + "%";
+            document.getElementById('water_bar').style.width = d.water_level + "%";
+            
+            state = d.system_state;
+            const btn = document.getElementById('main_switch');
+            btn.innerText = state === "ON" ? "SHUT DOWN" : "START ENGINE";
+            btn.className = state === "ON" ? "btn btn-stop" : "btn btn-start";
+        } catch(e) {}
+    }
+
+    async function toggleSystem() {
+        let cmd = (state === "ON") ? "STOP" : "START";
+        await fetch(CMD_URL, { method: 'PUT', body: JSON.stringify(cmd) });
+    }
+
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['','','','','','',''], datasets: [{ data:[75,72,78,74,70,68,65], borderColor:'#00ccff', tension:0.4, pointRadius:0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}} }
+    });
+
+    setInterval(update, 1200);
+</script>
+</body>
+</html>

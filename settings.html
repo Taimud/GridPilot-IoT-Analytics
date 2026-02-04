@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid-Pilot Settings</title>
+    <style>
+        :root { --accent: #00ccff; --bg: #050505; --card: #0f0f0f; --text-muted: #666; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .nav-pill { background: #111; border: 1px solid #222; border-radius: 50px; padding: 5px; display: flex; gap: 5px; margin-bottom: 30px; }
+        .nav-item { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: var(--text-muted); font-size: 12px; font-weight: 700; transition: 0.3s; }
+        .nav-item.active { background: #222; color: white; }
+
+        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; }
+        h2 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 10px; color: #555; margin-bottom: 8px; font-weight: bold; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #222; color: white; border-radius: 10px; box-sizing: border-box; }
+        
+        .btn-save { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 10px; font-weight: 800; cursor: pointer; color: #000; transition: 0.3s; }
+        .btn-save:hover { box-shadow: 0 0 20px var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="nav-pill">
+        <a href="index.html" class="nav-item">COMMAND</a>
+        <a href="analytics.html" class="nav-item">INTELLIGENCE</a>
+        <a href="#" class="nav-item active">SETTINGS</a>
+    </div>
+
+    <div class="card">
+        <h2>Market Configuration (Nigeria)</h2>
+        <div class="form-group">
+            <label>Current Diesel Price (₦ per Liter)</label>
+            <input type="number" id="diesel_price" placeholder="1350">
+        </div>
+        <div class="form-group">
+            <label>Generator Burn Rate (Liters per Hour)</label>
+            <input type="number" id="burn_rate" placeholder="4.2">
+        </div>
+        <button class="btn-save" onclick="saveSettings()">UPDATE MARKET DATA</button>
+        <p id="status" style="font-size: 10px; color: var(--accent); margin-top: 15px; text-align: center;"></p>
+    </div>
+
+    <script>
+        const SETTINGS_URL = "https://gridpilot-core-default-rtdb.firebaseio.com/market_settings.json";
+
+        async function saveSettings() {
+            const price = document.getElementById('diesel_price').value;
+            const rate = document.getElementById('burn_rate').value;
+            
+            const data = { diesel_price: price, burn_rate: rate };
+            
+            await fetch(SETTINGS_URL, { method: 'PUT', body: JSON.stringify(data) });
+            document.getElementById('status').innerText = "✅ Market data synced to Cloud.";
+        }
+    </script>
+</body>
+</html>
