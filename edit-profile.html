@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | GridPilot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
+        .header { display: flex; align-items: center; margin-bottom: 30px; }
+        .back-btn { border: none; background: none; font-size: 20px; color: #64748b; margin-right: 15px; cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        .label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; }
+        .input-field { width: 100%; padding: 16px; border: 1px solid #e2e8f0; border-radius: 16px; font-size: 16px; background: white; box-sizing: border-box; }
+        .input-readonly { background: #f1f5f9; color: #94a3b8; }
+        .btn-save { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 20px; font-weight: 700; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        .danger-zone { margin-top: 50px; padding-top: 30px; border-top: 1px solid #e2e8f0; }
+        .btn-delete { width: 100%; padding: 16px; background: white; color: #ef4444; border: 1px solid #fee2e2; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
+        <h1 style="margin:0; font-size:22px;">Edit Profile</h1>
+    </div>
+
+    <div class="form-group">
+        <div class="label">Email Address</div>
+        <input type="text" class="input-field input-readonly" id="email" value="Loading..." readonly>
+    </div>
+
+    <div class="form-group">
+        <div class="label">Full Name</div>
+        <input type="text" class="input-field" id="fullname" placeholder="Enter your name">
+    </div>
+
+    <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+
+    <div class="danger-zone">
+        <button class="btn-delete" onclick="deleteAccount()">Delete Account</button>
+    </div>
+
+    <script type="module">
+        import { getAuth, deleteUser, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+        // REAL KEYS:
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYrOvwY2Gu2kGQwkT-tGz2fU_t_uma9V0",
+            authDomain: "gridpilot-core.firebaseapp.com",
+            databaseURL: "https://gridpilot-core-default-rtdb.firebaseio.com",
+            projectId: "gridpilot-core",
+            storageBucket: "gridpilot-core.firebasestorage.app",
+            messagingSenderId: "998725408399",
+            appId: "1:998725408399:web:c64a7a509de8811e2bc2fa",
+            measurementId: "G-2HCSYQGK4L"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('email').value = user.email;
+                if(user.displayName) document.getElementById('fullname').value = user.displayName;
+            }
+        });
+
+        window.saveProfile = function() {
+            const user = auth.currentUser;
+            const newName = document.getElementById('fullname').value;
+            updateProfile(user, { displayName: newName }).then(() => {
+                alert("Profile Updated Successfully!");
+                window.location.href = "profile.html";
+            }).catch((error) => {
+                alert("Error: " + error.message);
+            });
+        }
+
+        window.deleteAccount = function() {
+            if(confirm("DANGER: Are you sure you want to delete your account?")) {
+                const user = auth.currentUser;
+                deleteUser(user).then(() => {
+                    alert("Account Deleted.");
+                    window.location.href = "login.html";
+                }).catch((error) => {
+                    alert("Error: Please Log Out and Log In again to delete your account.");
+                });
+            }
+        }
+    </script>
+</body>
+</html>

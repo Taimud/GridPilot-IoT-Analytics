@@ -3,92 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GridPilot | Notifications</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
-    </script>
+    <title>Notifications | GridPilot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --bg-body: #f3f4f6; --text-dark: #1e293b; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 90px; }
-        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 10px; }
-        .card-header { font-size: 14px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .channel-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-        .channel-row:last-child { border-bottom: none; }
-        .channel-info { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
-        .icon-circle { width: 36px; height: 36px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+        body { font-family: -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 120px; color: #1e293b; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { border: none; background: none; font-size: 20px; color: #64748b; margin-right: 15px; cursor: pointer; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        
+        .section-title { font-size: 12px; font-weight: 700; color: #94a3b8; margin: 25px 0 10px 5px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        
+        .toggle-label { font-size: 14px; font-weight: 600; }
+        .toggle-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+        
+        /* Custom Toggle Switch */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(20px); }
-        .alert-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
-        .alert-icon { font-size: 18px; margin-top: 2px; }
-        .alert-content h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; }
-        .alert-content p { margin: 0; font-size: 12px; color: #64748b; }
-        .alert-time { font-size: 11px; color: #94a3b8; white-space: nowrap; }
-        .type-danger { color: #ef4444; } .type-success { color: #10b981; } .type-info { color: #3b82f6; }
-        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
-        .nav-btn i { font-size: 20px; }
-        .nav-label { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color: var(--primary); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; -webkit-transition: .4s; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2563eb; }
+        input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); }
+
+        .log-list { margin-top: 10px; }
+        .log-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
+        .log-icon { width: 36px; height: 36px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .log-icon.info { background: #dbeafe; color: #2563eb; }
+        .log-content h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; }
+        .log-content p { margin: 0; font-size: 12px; color: #64748b; }
+        .log-time { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+
+        .bottom-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: white; padding: 12px 20px; border-radius: 40px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 600; }
+        .nav-active { color: #2563eb; } .nav-item i { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
     <div class="header">
-        <h1 style="color:#1e293b">Notifications</h1>
-        <p style="color:#64748b; font-size:13px; margin-top:5px;">Manage Alerts & History</p>
+        <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+        <h1>Alerts</h1>
+    </div>
+
+    <div class="section-title">Preferences</div>
+    
+    <div class="card">
+        <div>
+            <div class="toggle-label">Push Notifications</div>
+            <div class="toggle-sub">Receive alerts on phone</div>
+        </div>
+        <label class="switch">
+            <input type="checkbox" checked onchange="savePref('push', this.checked)">
+            <span class="slider"></span>
+        </label>
     </div>
 
     <div class="card">
-        <div class="card-header">Alert Channels</div>
-        <div class="channel-row">
-            <div class="channel-info"><div class="icon-circle"><i class="fas fa-comment-alt"></i></div><span>SMS (+234)</span></div>
-            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        <div>
+            <div class="toggle-label">Email Alerts</div>
+            <div class="toggle-sub">Weekly summaries</div>
         </div>
-        <div class="channel-row">
-            <div class="channel-info"><div class="icon-circle"><i class="fas fa-envelope"></i></div><span>Email Alerts</span></div>
-            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        <label class="switch">
+            <input type="checkbox" onchange="savePref('email', this.checked)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="section-title">Recent Activity</div>
+
+    <div class="log-list">
+        <div class="log-item">
+            <div class="log-icon"><i class="fas fa-gas-pump"></i></div>
+            <div class="log-content">
+                <h4>Low Fuel Warning</h4>
+                <p>Generator fuel dropped below 15%.</p>
+                <div class="log-time">Today, 10:23 AM</div>
+            </div>
         </div>
-        <div class="channel-row">
-            <div class="channel-info"><div class="icon-circle"><i class="fas fa-bell"></i></div><span>Push Notifications</span></div>
-            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+
+        <div class="log-item">
+            <div class="log-icon info"><i class="fas fa-plug"></i></div>
+            <div class="log-content">
+                <h4>Grid Power Restored</h4>
+                <p>NEPA is back. Generator auto-shutdown.</p>
+                <div class="log-time">Yesterday, 4:15 PM</div>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header"><span>Recent Activity</span><span style="font-size:11px; color:var(--primary); cursor:pointer;">Clear All</span></div>
-        <div class="alert-item">
-            <div class="alert-icon type-danger"><i class="fas fa-exclamation-triangle"></i></div>
-            <div class="alert-content"><h4>Gas Leak Detected</h4><p>Sensor reported abnormal weight drop.</p></div>
-            <div class="alert-time">2m ago</div>
-        </div>
-        <div class="alert-item">
-            <div class="alert-icon type-success"><i class="fas fa-bolt"></i></div>
-            <div class="alert-content"><h4>Grid Power Restored</h4><p>System switched from Gen to Grid.</p></div>
-            <div class="alert-time">1h ago</div>
-        </div>
-        <div class="alert-item">
-            <div class="alert-icon type-info"><i class="fas fa-tint"></i></div>
-            <div class="alert-content"><h4>Water Tank Refilled</h4><p>Level increased to 95%.</p></div>
-            <div class="alert-time">Yesterday</div>
-        </div>
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+        <a href="analytics.html" class="nav-item"><i class="fas fa-chart-bar"></i> Stats</a>
+        <a href="notifications.html" class="nav-item nav-active"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-btn" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
-        <button class="nav-btn" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
-        <button class="nav-btn active"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
-        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
-        <button class="nav-btn" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
-    </div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // REAL KEYS
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYrOvwY2Gu2kGQwkT-tGz2fU_t_uma9V0",
+            authDomain: "gridpilot-core.firebaseapp.com",
+            databaseURL: "https://gridpilot-core-default-rtdb.firebaseio.com",
+            projectId: "gridpilot-core",
+            storageBucket: "gridpilot-core.firebasestorage.app",
+            messagingSenderId: "998725408399",
+            appId: "1:998725408399:web:c64a7a509de8811e2bc2fa",
+            measurementId: "G-2HCSYQGK4L"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.savePref = function(type, isEnabled) {
+            // In a real app, we save this to the user's DB profile
+            console.log(`Preference ${type} set to ${isEnabled}`);
+            // alert("Settings Saved"); // Optional feedback
+        }
+    </script>
 </body>
 </html>

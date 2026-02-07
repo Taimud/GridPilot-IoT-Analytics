@@ -3,121 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GridPilot | Analytics</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
-    </script>
+    <title>Analytics | GridPilot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #2563eb; --bg-body: #f3f4f6; --text-dark: #1e293b; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; padding-bottom: 80px; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .card-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; transition: 0.3s; }
-        .pill-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 15px; scrollbar-width: none; }
-        .pill { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; transition: 0.2s; border: 1px solid transparent; color: rgba(255,255,255,0.8); }
-        .pill:hover { background: rgba(255,255,255,0.3); }
-        .pill.active { background: white; color: var(--primary); font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .time-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.1); padding: 4px; border-radius: 12px; width: fit-content; margin-left: auto; margin-right: auto; }
-        .time-btn { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; opacity: 0.7; color: white; }
-        .time-btn.active { background: white; color: var(--primary); opacity: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
-        .stat-row:last-child { border-bottom: none; }
-        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
-        .nav-btn i { font-size: 20px; }
-        .nav-label { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color: var(--primary); }
+        body { font-family: -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 120px; color: #1e293b; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { border: none; background: none; font-size: 20px; color: #64748b; margin-right: 15px; cursor: pointer; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .graph-card { background: #3b82f6; color: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px -10px rgba(59,130,246,0.5); margin-bottom: 20px; transition: 0.3s; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab { padding: 8px 14px; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
+        .tab.active { background: white; color: #2563eb; }
+        .time-pills { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .pill { font-size: 12px; opacity: 0.7; cursor: pointer; padding: 4px 10px; border-radius: 10px; transition: 0.2s; }
+        .pill.active { background: white; color: #2563eb; opacity: 1; font-weight: 700; }
+        .chart-container { height: 180px; position: relative; border-left: 1px solid rgba(255,255,255,0.3); border-bottom: 1px solid rgba(255,255,255,0.3); margin: 0 10px 10px 30px; }
+        .chart-line { width: 100%; height: 100%; position: absolute; bottom: 0; left: 0; background-size: 100% 100%; background-repeat: no-repeat; transition: background-image 0.5s ease; }
+        .report-card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); }
+        .report-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 15px; text-transform: uppercase; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
+        .stat-val { font-weight: 700; color: #0f172a; }
+        .pdf-btn { width: 100%; padding: 14px; background: #1e293b; color: white; border: none; border-radius: 16px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-top: 10px; }
+        .bottom-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: white; padding: 12px 20px; border-radius: 40px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 600; }
+        .nav-active { color: #2563eb; } .nav-item i { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
     <div class="header">
-        <h1 style="color:#1e293b">Analytics</h1>
-        <p style="color:#64748b; font-size:13px; margin-top:5px;">Historical Usage & Trends</p>
+        <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+        <div><h1>Analytics</h1><div style="font-size:13px; color:#94a3b8;">Historical Usage</div></div>
     </div>
 
-    <div class="card card-blue" id="chartCard" style="height: 380px;">
-        <div class="pill-scroll">
-            <div class="pill active" id="pill-gen" onclick="setUtility('gen', this)">Generator</div>
-            <div class="pill" id="pill-solar" onclick="setUtility('solar', this)">Solar</div>
-            <div class="pill" id="pill-gas" onclick="setUtility('gas', this)">Gas Cylinder</div>
-            <div class="pill" id="pill-water" onclick="setUtility('water', this)">Water</div>
-            <div class="pill" id="pill-grid" onclick="setUtility('grid', this)">Grid</div>
+    <div class="graph-card" id="main-card">
+        <div class="tabs">
+            <div class="tab active" data-type="gen" onclick="switchTab('gen', this)">Generator</div>
+            <div class="tab" data-type="grid" onclick="switchTab('grid', this)">NEPA/Grid</div>
+            <div class="tab" data-type="solar" onclick="switchTab('solar', this)">Solar</div>
+            <div class="tab" data-type="gas" onclick="switchTab('gas', this)">Gas</div>
+            <div class="tab" data-type="water" onclick="switchTab('water', this)">Water</div>
         </div>
-        <div class="time-row">
-            <div class="time-btn active" onclick="setTime('daily', this)">Daily</div>
-            <div class="time-btn" onclick="setTime('weekly', this)">Weekly</div>
-            <div class="time-btn" onclick="setTime('monthly', this)">Monthly</div>
+        
+        <div class="time-pills">
+            <div class="pill active" onclick="switchPeriod(this)">Daily</div>
+            <div class="pill" onclick="switchPeriod(this)">Weekly</div>
+            <div class="pill" onclick="switchPeriod(this)">Monthly</div>
         </div>
-        <div style="height: 240px;"><canvas id="mainChart"></canvas></div>
+
+        <div class="chart-container">
+            <div class="chart-line" id="chart-img" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 50\' fill=\'none\' stroke=\'white\' stroke-width=\'2\'%3E%3Cpath d=\'M0 10 Q 25 15 50 40 T 100 5\' /%3E%3C/svg%3E');"></div>
+        </div>
     </div>
 
-    <div class="card">
-        <h3 style="margin:0 0 15px 0; font-size:16px;" id="reportTitle">Generator Efficiency</h3>
-        <div class="stat-row"><span style="color:#64748b" id="label1">Total Fuel Burned</span><strong id="val1">142 Liters</strong></div>
-        <div class="stat-row"><span style="color:#64748b" id="label2">Est. Cost (₦)</span><strong style="color:#ef4444" id="val2">-₦ 191,700</strong></div>
-        <div class="stat-row"><span style="color:#64748b" id="label3">Efficiency Score</span><strong style="color:#10b981" id="val3">A (High)</strong></div>
+    <div class="report-card" id="download-area">
+        <div class="report-title" id="report-title">GENERATOR REPORT</div>
+        <div class="stat-row">
+            <span class="stat-label" id="label-1">Hours Run</span>
+            <span class="stat-val" id="val-1">22.5 Hours</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label" id="label-2">Fuel Burned</span>
+            <span class="stat-val" id="val-2">142 Liters</span>
+        </div>
+        <button class="pdf-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-btn" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
-        <button class="nav-btn active" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
-        <button class="nav-btn" onclick="location.href='notifications.html'"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
-        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
-        <button class="nav-btn" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+        <a href="analytics.html" class="nav-item nav-active"><i class="fas fa-chart-bar"></i> Stats</a>
+        <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
     </div>
-</div>
 
-<script>
-    const dataStore = {
-        gen: { daily: [85,82,78,75,70,68,90], weekly: [90,85,80,75], monthly: [80,70,60,90,80,70,60,50,40,90,80,75], labels: ["Burned", "Cost", "Efficiency"], stats: ["142 Liters", "-₦ 191,700", "B+"] },
-        solar: { daily: [45,48,50,52,49,45,40], weekly: [48,50,52,49], monthly: [45,46,48,50,52,53,50,48,45,42,40,38], labels: ["Generated", "Savings", "Peak Volts"], stats: ["320 kWh", "+₦ 54,000", "53.2 V"] },
-        gas: { daily: [12.5,12.4,12.3,12.1,12.0,11.9,11.8], weekly: [12.5,11.0,9.5,8.0], monthly: [12.5,11,10,9,8,7,6,5,4,3,2,1], labels: ["Max Capacity", "Last Refilled", "Est. Run Out"], stats: ["12.5 kg", "2 Days Ago", "18 Days"] },
-        water: { daily: [60,58,55,52,50,48,80], weekly: [80,70,60,50], monthly: [90,80,70,60,50,40,90,80,70,60,50,40], labels: ["Consumed", "Pump Runs", "Quality"], stats: ["450 Liters", "12 Cycles", "Clean"] },
-        grid: { daily: [220,0,0,215,225,220,0], weekly: [18,12,24,20], monthly: [200,180,210,220,200,180,150,100,200,210,220,200], labels: ["Uptime", "Outages", "Avg Voltage"], stats: ["64 Hours", "12 Events", "215 V"] }
-    };
-    
-    let currentUtil='gen', currentTime='daily';
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    let mainChart = new Chart(ctx, { type: 'line', data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{ label: 'Usage', data: dataStore.gen.daily, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 3, tension: 0.4, pointRadius: 3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'rgba(255,255,255,0.8)' }, grid: { display: false } }, y: { ticks: { color: 'rgba(255,255,255,0.8)' }, grid: { color: 'rgba(255,255,255,0.1)' } } } } });
-
-    function setUtility(util, btn) {
-        currentUtil = util;
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        const d = dataStore[util];
-        document.getElementById('reportTitle').innerText = util.toUpperCase() + " REPORT";
-        document.getElementById('label1').innerText = d.labels[0]; document.getElementById('val1').innerText = d.stats[0];
-        document.getElementById('label2').innerText = d.labels[1]; document.getElementById('val2').innerText = d.stats[1];
-        document.getElementById('label3').innerText = d.labels[2]; document.getElementById('val3').innerText = d.stats[2];
-        updateChartData();
-    }
-    function setTime(time, btn) {
-        currentTime = time;
-        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateChartData();
-    }
-    function updateChartData() {
-        const d = dataStore[currentUtil];
-        let newLabels = (currentTime==='daily') ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] : (currentTime==='weekly') ? ['Wk 1','Wk 2','Wk 3','Wk 4'] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        mainChart.data.labels = newLabels;
-        mainChart.data.datasets[0].data = d[currentTime];
-        mainChart.update();
-    }
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const view = urlParams.get('view');
-        if(view && dataStore[view]) {
-            setUtility(view, document.getElementById("pill-" + view));
-        } else {
-            setUtility('gen', document.getElementById('pill-gen'));
+    <script>
+        // No Firebase needed for simple analytics display logic in this version
+        // But if you expand, the keys would go here.
+        
+        window.onload = function() {
+            const activeTab = sessionStorage.getItem('active_tab');
+            if(activeTab) {
+                const tabElement = document.querySelector(`.tab[data-type="${activeTab}"]`);
+                if(tabElement) tabElement.click(); 
+                sessionStorage.removeItem('active_tab'); 
+            }
         }
-    }
-</script>
+
+        function switchPeriod(element) {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            element.classList.add('active');
+            const chart = document.getElementById('chart-img');
+            chart.style.opacity = '0.5';
+            setTimeout(() => { chart.style.opacity = '1'; }, 200);
+        }
+
+        function switchTab(type, element) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+            const title = document.getElementById('report-title');
+            const l1 = document.getElementById('label-1'); const v1 = document.getElementById('val-1');
+            const l2 = document.getElementById('label-2'); const v2 = document.getElementById('val-2');
+            const chart = document.getElementById('chart-img');
+            const card = document.getElementById('main-card');
+
+            if (type === 'gen') {
+                card.style.background = "#3b82f6";
+                title.innerText = "GENERATOR REPORT";
+                l1.innerText = "Hours Run"; v1.innerText = "22.5 Hours";
+                l2.innerText = "Fuel Used"; v2.innerText = "142 Liters";
+                chart.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M0 10 Q 25 15 50 40 T 100 5' /%3E%3C/svg%3E\")";
+            } 
+            else if (type === 'grid') {
+                card.style.background = "#10b981";
+                title.innerText = "NEPA / GRID REPORT";
+                l1.innerText = "Uptime"; v1.innerText = "84 Hours";
+                l2.innerText = "Avg Voltage"; v2.innerText = "215 V";
+                chart.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M0 40 H 20 V 10 H 50 V 40 H 70 V 10 H 100' /%3E%3C/svg%3E\")";
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('download-area');
+            const btn = document.querySelector('.pdf-btn');
+            btn.style.display = 'none';
+            var opt = { margin: 10, filename: 'GridPilot_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save().then(function(){
+                btn.style.display = 'flex';
+                alert("Report downloaded!");
+            });
+        }
+    </script>
 </body>
 </html>

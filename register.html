@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | GridPilot</title>
+    <title>Create Account | GridPilot</title>
     <style>
         body { font-family: -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #1e293b; }
         .logo { font-size: 24px; font-weight: 800; color: #2563eb; margin-bottom: 5px; }
@@ -11,8 +11,8 @@
         .card { background: white; padding: 30px 25px; border-radius: 24px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); width: 85%; max-width: 350px; }
         .label { font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; }
         .input-field { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; margin-bottom: 15px; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; }
-        .btn-link { background: none; border: none; color: #64748b; font-size: 12px; margin-top: 15px; cursor: pointer; width: 100%; }
+        .btn-main { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); }
         .link-text { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
         .link-text a { color: #2563eb; text-decoration: none; font-weight: 600; }
     </style>
@@ -20,26 +20,28 @@
 <body>
 
     <div class="logo">GridPilot</div>
-    <div class="sub">Welcome Back</div>
+    <div class="sub">Create Account</div>
 
     <div class="card">
+        <div class="label">Full Name</div>
+        <input type="text" class="input-field" id="fullname" placeholder="John Doe">
+
         <div class="label">Email Address</div>
         <input type="email" class="input-field" id="email" placeholder="name@email.com">
 
         <div class="label">Password</div>
         <input type="password" class="input-field" id="password" placeholder="••••••••">
 
-        <button class="btn-main" onclick="handleLogin()" id="btn-login">Sign In</button>
-        <button class="btn-link" onclick="forgotPassword()">Forgot Password?</button>
+        <button class="btn-main" onclick="registerUser()" id="btn-reg">Create Account</button>
 
         <div class="link-text">
-            Don't have an account? <a href="register.html">Create one</a>
+            Already have an account? <a href="login.html">Sign In</a>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // YOUR REAL KEYS ARE INSERTED HERE:
         const firebaseConfig = {
@@ -55,36 +57,31 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        window.handleLogin = function() {
+
+        window.registerUser = function() {
+            const name = document.getElementById('fullname').value;
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            const btn = document.getElementById('btn-login');
-            
-            btn.innerText = "Verifying...";
+            const btn = document.getElementById('btn-reg');
 
-            signInWithEmailAndPassword(auth, email, pass)
-                .then((userCredential) => {
-                    sessionStorage.setItem("gridpilot_user", "true");
-                    window.location.href = "index.html";
-                })
-                .catch((error) => {
-                    alert("Login Failed: " + error.message);
-                    btn.innerText = "Sign In";
-                });
-        }
-
-        window.forgotPassword = function() {
-            const email = document.getElementById('email').value;
-            if(!email) {
-                alert("Please enter your email address in the box first.");
+            if(pass.length < 6) {
+                alert("Password must be at least 6 characters.");
                 return;
             }
-            sendPasswordResetEmail(auth, email)
-                .then(() => {
-                    alert("Reset link sent! Check your inbox.");
+
+            btn.innerText = "Creating...";
+
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    updateProfile(user, { displayName: name }).then(() => {
+                        sessionStorage.setItem("gridpilot_user", "true");
+                        alert("Account Created! Welcome " + name);
+                        window.location.href = "index.html";
+                    });
                 })
                 .catch((error) => {
+                    btn.innerText = "Create Account";
                     alert("Error: " + error.message);
                 });
         }

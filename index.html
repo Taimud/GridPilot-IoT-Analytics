@@ -4,118 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GridPilot | Home</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        // GATEKEEPER: PROTECT THIS PAGE
-        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
-    </script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #2563eb; --glass-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); --glass-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); --bg-body: #f3f4f6; --text-dark: #1e293b; --success: #10b981; --danger: #ef4444; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 90px; }
-        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .header h1 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-        .header-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: white; border-radius: 24px; padding: 18px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08); position: relative; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-blue { background: var(--glass-blue); color: white; }
-        .card-dark { background: var(--glass-dark); color: white; }
-        .card-title { font-size: 13px; font-weight: 600; opacity: 0.9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .click-area { cursor: pointer; flex-grow: 1; }
-        .power-btn { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.3s; z-index: 10; }
-        .btn-off { background: rgba(0,0,0,0.2); color: white; }
-        .card-dark .btn-off { background: rgba(255,255,255,0.1); }
-        .btn-on { background: white; color: var(--success); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .card-dark .btn-on { background: var(--success); color: white; box-shadow: 0 0 15px var(--success); }
-        .val-big { font-size: 28px; font-weight: 800; }
-        .sub-text { font-size: 11px; opacity: 0.7; margin-top: 5px; }
-        .circle-gauge { width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(white var(--deg), rgba(255,255,255,0.2) 0deg); display: flex; align-items: center; justify-content: center; margin: 0 auto; position: relative; cursor: pointer; }
-        .circle-gauge::before { content: ''; position: absolute; width: 84px; height: 84px; background: #3b82f6; border-radius: 50%; }
-        .circle-val { position: relative; font-size: 22px; font-weight: 800; z-index: 2; }
-        .icon-box { height: 50px; margin: 5px 0 10px; position: relative; cursor: pointer; }
-        .css-gas { width: 26px; height: 46px; background: #10b981; border-radius: 8px; position: absolute; left: 0; bottom: 0; }
-        .css-gas::before { content: ''; position: absolute; top: -4px; left: 5px; width: 16px; height: 4px; background: #059669; }
-        .css-gen { width: 44px; height: 36px; background: #f59e0b; border-radius: 4px; position: absolute; left: 0; bottom: 0; border-bottom: 4px solid #b45309; }
-        .css-gen::before { content: ''; position: absolute; top: 5px; left: 5px; width: 24px; height: 16px; background: rgba(0,0,0,0.2); border-radius: 2px; }
-        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
-        .nav-btn i { font-size: 20px; }
-        .nav-label { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color: var(--primary); }
+        body { font-family: -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 140px; color: #1e293b; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .header h2 { margin: 0; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -1px; }
+        .location-badge { background: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #64748b; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; }
+        .flag { width: 8px; height: 8px; background: #10b981; border-radius: 2px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content; gap: 15px; }
+        .card { border-radius: 24px; padding: 20px; position: relative; overflow: hidden; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: transform 0.1s; }
+        .card:active { transform: scale(0.98); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .card-title { font-size: 13px; font-weight: 600; color: inherit; opacity: 0.9; }
+        .icon-btn { font-size: 20px; opacity: 0.8; padding: 5px; cursor: pointer; z-index: 10; }
+        .card-value { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+        .card-unit { font-size: 14px; font-weight: 600; opacity: 0.7; margin-left: 2px; }
+        .card-footer { font-size: 11px; font-weight: 500; margin-top: 5px; opacity: 0.7; }
+        .card-water { grid-column: 1; grid-row: 1 / span 2; background: #3b82f6; color: white; height: 320px; }
+        .card-trend { grid-column: 2; grid-row: 1; background: #3b82f6; color: white; height: 150px; }
+        .card-gas { grid-column: 2; grid-row: 2; background: white; color: #1e293b; height: 150px; }
+        .card-gen { grid-column: 1; grid-row: 3; background: #1f2937; color: white; height: 160px; }
+        .card-solar { grid-column: 2; grid-row: 3; background: white; color: #1e293b; height: 160px; }
+        .card-inverter { grid-column: 1; grid-row: 4; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; height: 160px; }
+        .card-grid { grid-column: 2; grid-row: 4; background: #10b981; color: white; height: 160px; }
+        .progress-circle { width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(white 0% 0%, rgba(255,255,255,0.2) 0% 100%); margin: 30px auto; position: relative; display: flex; align-items: center; justify-content: center; }
+        .progress-circle::after { content: ''; position: absolute; width: 88%; height: 88%; background: #3b82f6; border-radius: 50%; }
+        .circle-text { position: relative; z-index: 2; font-size: 26px; font-weight: 800; }
+        .bottom-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: white; padding: 12px 20px; border-radius: 40px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 600; }
+        .nav-active { color: #2563eb; } .nav-item i { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
+    <script>
+        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
+    </script>
+
     <div class="header">
-        <div><div class="header-sub">Utility Manager</div><h1>GridPilot</h1></div>
-        <div style="background:white; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; color:#64748b; box-shadow:0 2px 5px rgba(0,0,0,0.05);"><img src="https://flagcdn.com/w20/ng.png" style="width:14px; vertical-align:middle;"> Lagos</div>
+        <div><h2>UTILITY MANAGER</h2><h1>GridPilot</h1></div>
+        <div class="location-badge"><div class="flag"></div> Lagos</div>
     </div>
 
     <div class="dashboard-grid">
-        <div class="card card-blue" style="grid-row: span 2;">
-            <div class="card-title"><span class="click-area" onclick="go('water')">Water Pump <i class="fas fa-chevron-right" style="font-size:10px"></i></span><button class="power-btn btn-off" id="btn-water" onclick="togglePower('water')"><i class="fas fa-power-off"></i></button></div>
-            <div class="circle-gauge" id="water_gauge" style="--deg: 0deg;" onclick="go('water')"><div class="circle-val"><span id="water_val">--</span>%</div></div>
-            <div class="sub-text" style="text-align:center; margin-top:20px;"><span id="status-water">Pump is OFF</span><br>Predictive AI: Refill in <span id="water_days">--</span> days</div>
+        <div class="card card-water" onclick="openAnalytics('water')">
+            <div class="card-header"><span class="card-title">Water Pump ></span><i class="fas fa-power-off icon-btn" onclick="toggleDevice(event, 'water')"></i></div>
+            <div class="progress-circle" id="water-circle"><div class="circle-text"><span id="water-level">--</span>%</div></div>
+            <div style="text-align: center; margin-top: auto;">
+                <div class="card-footer" id="pump-status" style="font-size:12px; font-weight:700; opacity:1">Pump is OFF</div>
+                <div class="card-footer" style="color: rgba(255,255,255,0.8);">Predictive AI: Refill in 5 days</div>
+            </div>
         </div>
-        <div class="card card-blue" style="height:140px;" onclick="go('gen')"><div class="card-title">Usage Trend <i class="fas fa-chart-line"></i></div><canvas id="miniChart"></canvas></div>
-        <div class="card" onclick="go('gas')"><div class="card-title" style="color:#333">Gas Cylinder <i class="fas fa-ellipsis-h" style="color:#ccc"></i></div><div class="icon-box"><div class="css-gas"></div></div><div class="val-big"><span id="gas_val">--</span><small style="font-size:14px; color:#aaa">kg</small></div><div class="sub-text" id="gas_msg">Safe Levels</div></div>
-        <div class="card card-dark"><div class="card-title"><span class="click-area" onclick="go('gen')">Generator <i class="fas fa-bolt" style="color:#f59e0b"></i></span><button class="power-btn btn-off" id="btn-gen" onclick="togglePower('gen')"><i class="fas fa-power-off"></i></button></div><div class="icon-box" onclick="go('gen')"><div class="css-gen"></div></div><div class="val-big"><span id="fuel_val">--</span>%</div><div class="sub-text" id="status-gen">Engine Stopped</div></div>
-        <div class="card" onclick="go('solar')"><div class="card-title" style="color:#333">Solar <i class="fas fa-sun" style="color:#f59e0b"></i></div><div class="val-big" style="margin-top:10px;"><span id="solar_val">--</span>V</div><div class="sub-text">Sustainability metrics</div></div>
-        <div class="card card-blue"><div class="card-title"><span class="click-area" onclick="go('grid')">Grid Power <i class="fas fa-plug"></i></span><button class="power-btn btn-on" id="btn-grid" onclick="togglePower('grid')"><i class="fas fa-plug"></i></button></div><div class="val-big" style="margin-top:10px;"><span id="grid_val">--</span>V</div><div class="sub-text" id="status-grid">Connected</div></div>
+        <div class="card card-trend" onclick="openAnalytics('gen')">
+            <div class="card-header"><span class="card-title">Usage Trend</span><i class="fas fa-chart-line icon-btn"></i></div>
+        </div>
+        <div class="card card-gas" onclick="openAnalytics('gas')">
+            <div class="card-header"><span class="card-title">Gas Cylinder</span><i class="fas fa-ellipsis-h icon-btn"></i></div>
+            <div class="card-value">12.5<span class="card-unit">kg</span></div>
+            <div class="card-footer" style="color:#10b981">Safe Levels</div>
+        </div>
+        <div class="card card-gen" onclick="openAnalytics('gen')">
+            <div class="card-header"><span class="card-title">Generator <i class="fas fa-bolt" style="color:#f59e0b"></i></span><i class="fas fa-power-off icon-btn" onclick="toggleDevice(event, 'gen')"></i></div>
+            <div class="card-value"><span id="gen-fuel">--</span><span class="card-unit">%</span></div>
+            <div class="card-footer" id="gen-text">Engine Stopped</div>
+        </div>
+        <div class="card card-solar" onclick="openAnalytics('solar')">
+            <div class="card-header"><span class="card-title">Solar</span><i class="fas fa-sun" style="color:#f59e0b"></i></div>
+            <div style="margin-top: auto;">
+                <div class="card-value"><span id="solar-volt">--</span><span class="card-unit">V</span></div>
+                <div class="card-footer">Sustainability metrics</div>
+            </div>
+        </div>
+        <div class="card card-inverter" onclick="openAnalytics('inverter')">
+            <div class="card-header"><span class="card-title">Inverter</span><i class="fas fa-bolt"></i></div>
+            <div style="margin-top: auto;">
+                <div class="card-value"><span id="inverter-volt">--</span><span class="card-unit">V</span></div>
+                <div class="card-footer">Battery Level & Health</div>
+            </div>
+        </div>
+        <div class="card card-grid" id="grid-card" onclick="openAnalytics('grid')">
+            <div class="card-header"><span class="card-title">NEPA / Grid</span><i class="fas fa-plug icon-btn"></i></div>
+            <div style="margin-top: auto;">
+                <div class="card-value" style="font-size: 22px;" id="grid-status-text">Detecting...</div>
+                <div class="card-footer">Main Power Source</div>
+            </div>
+        </div>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-btn active" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
-        <button class="nav-btn" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
-        <button class="nav-btn" onclick="location.href='notifications.html'"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
-        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
-        <button class="nav-btn" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item nav-active"><i class="fas fa-home"></i> Home</a>
+        <a href="analytics.html" class="nav-item"><i class="fas fa-chart-bar"></i> Stats</a>
+        <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
     </div>
-</div>
 
-<script>
-    function go(view) { location.href = `analytics.html?view=${view}`; }
-    async function togglePower(device) {
-        const btn = document.getElementById(`btn-${device}`);
-        const isTurningOn = btn.classList.contains('btn-off');
-        let commandPath = "", payload = {};
-        if(device === 'gen') { commandPath = "controls/generator"; payload = { state: isTurningOn ? "ON" : "OFF" }; } 
-        else if (device === 'water') { commandPath = "controls/water_pump"; payload = { state: isTurningOn ? "ON" : "OFF" }; }
-        else if (device === 'grid') { commandPath = "controls/grid_switch"; payload = { state: isTurningOn ? "CONNECTED" : "ISOLATED" }; }
-        const CONTROL_URL = `https://gridpilot-core-default-rtdb.firebaseio.com/${commandPath}.json`;
-        try {
-            btn.style.opacity = "0.5"; 
-            await fetch(CONTROL_URL, { method: 'PUT', body: JSON.stringify(payload) });
-            if (isTurningOn) { btn.classList.remove('btn-off'); btn.classList.add('btn-on'); } 
-            else { btn.classList.remove('btn-on'); btn.classList.add('btn-off'); }
-        } catch (error) { alert("Connection Failed"); } finally { btn.style.opacity = "1"; }
-    }
-    const URL = "https://gridpilot-core-default-rtdb.firebaseio.com/generator_01.json";
-    async function update() {
-        try {
-            let d = await (await fetch(URL)).json();
-            if(!d) return;
-            document.getElementById('water_val').innerText = d.water_level;
-            document.getElementById('water_gauge').style.setProperty('--deg', (d.water_level*3.6)+'deg');
-            document.getElementById('water_days').innerText = Math.floor(d.water_level/8);
-            document.getElementById('gas_val').innerText = d.gas_weight || 12.5;
-            if(d.gas_leak) { document.getElementById('gas_msg').innerText = "⚠️ LEAK DETECTED"; document.getElementById('gas_msg').style.color = "#ef4444"; } 
-            else { document.getElementById('gas_msg').innerText = "Safe Levels"; document.getElementById('gas_msg').style.color = "#888"; }
-            document.getElementById('fuel_val').innerText = d.fuel_percent;
-            document.getElementById('solar_val').innerText = d.solar_battery_volts;
-            if(d.status_message && d.status_message.includes("Generator Active")) { document.getElementById('status-gen').innerText = "Engine Running"; document.getElementById('status-gen').style.color = "#10b981"; document.getElementById('btn-gen').classList.add('btn-on'); document.getElementById('btn-gen').classList.remove('btn-off'); } 
-            else { document.getElementById('status-gen').innerText = "Engine Stopped"; document.getElementById('status-gen').style.color = "#888"; document.getElementById('btn-gen').classList.remove('btn-on'); document.getElementById('btn-gen').classList.add('btn-off'); }
-            document.getElementById('grid_val').innerText = d.grid_voltage;
-            const gridText = document.getElementById('status-grid');
-            const gridBtn = document.getElementById('btn-grid');
-            if (d.grid_switch_state === "ISOLATED") { gridText.innerText = "Manually Isolated"; gridText.style.color = "#888"; gridBtn.classList.remove('btn-on'); gridBtn.classList.add('btn-off'); } 
-            else { gridBtn.classList.add('btn-on'); gridBtn.classList.remove('btn-off'); if (d.grid_voltage === 0) { gridText.innerText = "⚠️ BLACKOUT"; gridText.style.color = "#ef4444"; } else if (d.grid_voltage < 180) { gridText.innerText = "⚠️ Low Current"; gridText.style.color = "#f59e0b"; } else { gridText.innerText = "Active Supply"; gridText.style.color = "white"; } }
-        } catch(e){}
-    }
-    new Chart(document.getElementById('miniChart'), { type:'line', data:{labels:[1,2,3,4,5], datasets:[{data:[12,19,15,22,25], borderColor:'white', tension:0.4, pointRadius:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}}} });
-    setInterval(update, 1000);
-</script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // YOUR REAL KEYS ARE INSERTED HERE:
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYrOvwY2Gu2kGQwkT-tGz2fU_t_uma9V0",
+            authDomain: "gridpilot-core.firebaseapp.com",
+            databaseURL: "https://gridpilot-core-default-rtdb.firebaseio.com",
+            projectId: "gridpilot-core",
+            storageBucket: "gridpilot-core.firebasestorage.app",
+            messagingSenderId: "998725408399",
+            appId: "1:998725408399:web:c64a7a509de8811e2bc2fa",
+            measurementId: "G-2HCSYQGK4L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const systemRef = ref(db, 'system_status');
+
+        window.openAnalytics = function(tabName) {
+            sessionStorage.setItem('active_tab', tabName);
+            window.location.href = 'analytics.html';
+        }
+
+        window.toggleDevice = function(event, device) {
+            event.stopPropagation(); 
+            alert("Command Sent: Toggle " + device);
+        }
+
+        onValue(systemRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            const waterLvl = data.water_level || 0;
+            document.getElementById('water-level').innerText = waterLvl;
+            document.getElementById('water-circle').style.background = `conic-gradient(white 0% ${waterLvl}%, rgba(255,255,255,0.2) ${waterLvl}% 100%)`;
+            document.getElementById('pump-status').innerText = data.water_pump_active ? "Pump is ON" : "Pump is OFF";
+            document.getElementById('gen-fuel').innerText = data.gen_fuel;
+            document.getElementById('gen-text').innerText = data.gen_active ? "Engine Running" : "Engine Stopped";
+            document.getElementById('solar-volt').innerText = data.solar_voltage || "--";
+            document.getElementById('inverter-volt').innerText = data.solar_battery_volts || "--";
+            const gridCard = document.getElementById('grid-card');
+            const gridText = document.getElementById('grid-status-text');
+            if (data.grid_active) {
+                gridCard.style.background = "#10b981";
+                gridText.innerText = "ON (Active)";
+            } else {
+                gridCard.style.background = "#64748b";
+                gridText.innerText = "OFF (Outage)";
+            }
+        });
+    </script>
 </body>
 </html>

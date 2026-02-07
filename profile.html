@@ -3,106 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GridPilot | Wallet</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        // GATEKEEPER CHECK
-        if (!sessionStorage.getItem("gridpilot_user")) { window.location.href = "login.html"; }
-    </script>
+    <title>Profile | GridPilot</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #2563eb; --bg-body: #f3f4f6; --text-dark: #1e293b; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); color: var(--text-dark); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 90px; }
-        .app-frame { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 120px; color: #1e293b; }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .header h1 { font-size: 24px; margin: 0; }
+        /* HEADER */
+        .header { display: flex; align-items: center; margin-bottom: 30px; }
+        .back-btn { border: none; background: none; font-size: 20px; color: #64748b; margin-right: 15px; cursor: pointer; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+
+        /* USER CARD */
+        .user-card { 
+            background: white; padding: 25px 20px; border-radius: 24px; 
+            box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); text-align: center; margin-bottom: 25px; 
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .user-card:active { transform: scale(0.98); }
         
-        /* CLICKABLE USER LINK */
-        .user-chip { display: flex; align-items: center; gap: 10px; background: white; padding: 5px 10px 5px 5px; border-radius: 30px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; text-decoration: none; color: var(--text-dark); }
-        .user-chip:active { transform: scale(0.95); background: #e2e8f0; }
+        .avatar { width: 80px; height: 80px; background: #e2e8f0; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #94a3b8; }
+        .user-email { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
+        .edit-hint { font-size: 12px; color: #3b82f6; font-weight: 600; margin-top: 5px; }
+        .edit-icon { position: absolute; top: 20px; right: 20px; color: #cbd5e1; font-size: 14px; }
+
+        /* SECTIONS */
+        .section-title { font-size: 12px; font-weight: 700; color: #94a3b8; margin: 25px 0 10px 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-list { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); }
+        .menu-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:active { background: #f1f5f9; }
         
-        .avatar { width: 28px; height: 28px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; }
-        .wallet-card { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border-radius: 24px; padding: 25px; position: relative; overflow: hidden; box-shadow: 0 10px 30px -5px rgba(37,99,235,0.4); }
-        .wallet-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-        .balance { font-size: 36px; font-weight: 800; margin: 5px 0 20px 0; }
-        .wallet-actions { display: flex; gap: 10px; }
-        .w-btn { flex: 1; background: rgba(255,255,255,0.2); border: none; padding: 10px; border-radius: 12px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; backdrop-filter: blur(5px); transition: 0.2s; }
-        .w-btn:hover { background: white; color: var(--primary); }
-        .section-title { font-size: 13px; font-weight: 700; color: #64748b; margin: 15px 0 5px 5px; text-transform: uppercase; }
-        .card-list { background: white; border-radius: 20px; padding: 10px 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
-        .list-item:last-child { border-bottom: none; }
-        .item-left { display: flex; align-items: center; gap: 15px; }
-        .icon-box { width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; }
-        .item-text h4 { margin: 0 0 3px 0; font-size: 14px; color: var(--text-dark); }
-        .item-text p { margin: 0; font-size: 11px; color: #94a3b8; }
-        .status-badge { font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 700; background: #dcfce7; color: #166534; }
-        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: white; border-radius: 20px; padding: 10px 25px; display: flex; justify-content: space-between; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: none; border: none; cursor: pointer; gap: 4px; }
-        .nav-btn i { font-size: 20px; }
-        .nav-label { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color: var(--primary); }
+        /* ICONS */
+        .icon-box { width: 32px; height: 32px; border-radius: 10px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .bg-blue { background: #dbeafe; color: #2563eb; }
+        .bg-green { background: #dcfce7; color: #16a34a; }
+        .bg-gray { background: #f1f5f9; color: #64748b; }
+        .item-text { flex-grow: 1; font-size: 14px; font-weight: 600; }
+        
+        /* LOGOUT */
+        .logout-btn { width: 100%; padding: 16px; background: #fee2e2; color: #ef4444; border: none; border-radius: 20px; font-weight: 700; margin-top: 30px; cursor: pointer; }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: white; padding: 12px 20px; border-radius: 40px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 600; transition: 0.2s; }
+        .nav-active { color: #2563eb; } .nav-item i { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
     <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
         <h1>Profile</h1>
-        <a href="personal_info.html" class="user-chip">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <span>Taiwo Mudah</span>
-            <i class="fas fa-chevron-right" style="font-size: 10px; color: #cbd5e1; margin-left: 2px;"></i>
-        </a>
     </div>
 
-    <div class="wallet-card">
-        <div class="wallet-label">GridPilot Wallet</div>
-        <div class="balance">₦ 45,200</div>
-        <div class="wallet-actions">
-            <button class="w-btn"><i class="fas fa-plus"></i> Fund Wallet</button>
-            <button class="w-btn"><i class="fas fa-history"></i> History</button>
+    <div class="user-card" onclick="window.location.href='edit-profile.html'">
+        <i class="fas fa-pen edit-icon"></i>
+        <div class="avatar"><i class="fas fa-user"></i></div>
+        <div class="user-email" id="display-email">Loading...</div>
+        <div class="edit-hint">Edit Profile ></div>
+    </div>
+
+    <div class="section-title">Setup & Configuration</div>
+    <div class="menu-list">
+        <div class="menu-item" onclick="window.location.href='setup.html'">
+            <div class="icon-box bg-blue"><i class="fas fa-microchip"></i></div>
+            <div class="item-text">Hardware Setup</div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
+        </div>
+        <div class="menu-item" onclick="setLocation()">
+            <div class="icon-box bg-blue"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="item-text">Home Location</div>
+            <span id="loc-status" style="font-size:11px; color:#94a3b8; margin-right:10px;">Not Set</span>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
         </div>
     </div>
 
-    <div class="section-title">My Plan</div>
-    <div class="card-list">
-        <div class="list-item">
-            <div class="item-left"><div class="icon-box" style="background:#e0e7ff; color:#4338ca;"><i class="fas fa-crown"></i></div><div class="item-text"><h4>GridPilot Pro</h4><p>Next billing: 24 Feb</p></div></div>
-            <div class="status-badge">ACTIVE</div>
+    <div class="section-title">Support</div>
+    <div class="menu-list">
+        <div class="menu-item" onclick="window.location.href='help.html'">
+            <div class="icon-box bg-green"><i class="fas fa-life-ring"></i></div>
+            <div class="item-text">Help Center</div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
+        </div>
+        <div class="menu-item" onclick="window.location.href='about.html'">
+            <div class="icon-box bg-green"><i class="fas fa-info-circle"></i></div>
+            <div class="item-text">About GridPilot</div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
         </div>
     </div>
 
-    <div class="section-title">Account</div>
-    <div class="card-list">
-        <div class="list-item" style="cursor:pointer;" onclick="handleLogout()">
-            <div class="item-left">
-                <div class="icon-box" style="background:#fee2e2; color:#ef4444;"><i class="fas fa-sign-out-alt"></i></div>
-                <div class="item-text">
-                    <h4 style="color:#ef4444;">Log Out</h4>
-                    <p>Return to sign in screen</p>
-                </div>
-            </div>
-            <i class="fas fa-chevron-right" style="color:#ef4444;"></i>
+    <div class="section-title">Legal</div>
+    <div class="menu-list">
+        <div class="menu-item" onclick="window.location.href='privacy.html'">
+            <div class="icon-box bg-gray"><i class="fas fa-shield-alt"></i></div>
+            <div class="item-text">Privacy Policy</div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
+        </div>
+        <div class="menu-item" onclick="window.location.href='terms.html'">
+            <div class="icon-box bg-gray"><i class="fas fa-file-contract"></i></div>
+            <div class="item-text">Terms of Service</div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px;"></i>
         </div>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-btn" onclick="location.href='index.html'"><i class="fas fa-home"></i><span class="nav-label">Home</span></button>
-        <button class="nav-btn" onclick="location.href='analytics.html'"><i class="fas fa-chart-bar"></i><span class="nav-label">Stats</span></button>
-        <button class="nav-btn" onclick="location.href='notifications.html'"><i class="fas fa-bell"></i><span class="nav-label">Alerts</span></button>
-        <button class="nav-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i><span class="nav-label">Setup</span></button>
-        <button class="nav-btn active" onclick="location.href='profile.html'"><i class="fas fa-user"></i><span class="nav-label">Profile</span></button>
-    </div>
-</div>
+    <button class="logout-btn" onclick="logout()">Log Out</button>
 
-<script>
-    function handleLogout() {
-        if(confirm("Are you sure you want to log out?")) {
-            sessionStorage.removeItem("gridpilot_user");
-            window.location.href = "login.html";
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+        <a href="analytics.html" class="nav-item"><i class="fas fa-chart-bar"></i> Stats</a>
+        <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="profile.html" class="nav-item nav-active"><i class="fas fa-user"></i> Profile</a>
+    </div>
+
+    <script type="module">
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+        // YOUR REAL KEYS
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYrOvwY2Gu2kGQwkT-tGz2fU_t_uma9V0",
+            authDomain: "gridpilot-core.firebaseapp.com",
+            databaseURL: "https://gridpilot-core-default-rtdb.firebaseio.com",
+            projectId: "gridpilot-core",
+            storageBucket: "gridpilot-core.firebasestorage.app",
+            messagingSenderId: "998725408399",
+            appId: "1:998725408399:web:c64a7a509de8811e2bc2fa",
+            measurementId: "G-2HCSYQGK4L"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Display user email
+        onAuthStateChanged(auth, (user) => {
+            if (user) { 
+                document.getElementById('display-email').innerText = user.email; 
+            } else {
+                document.getElementById('display-email').innerText = "Not Logged In";
+            }
+        });
+
+        // Logout function
+        window.logout = function() {
+            signOut(auth).then(() => {
+                sessionStorage.removeItem("gridpilot_user");
+                window.location.href = "login.html";
+            }).catch((error) => {
+                alert("Error logging out: " + error.message);
+            });
         }
-    }
-</script>
+        
+        window.setLocation = function() {
+            const status = document.getElementById('loc-status');
+            status.innerText = "Locating...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(() => {
+                    status.innerText = "Enabled"; 
+                    status.style.color = "#10b981";
+                    alert("Location Updated!");
+                }, (err) => {
+                    alert("Location Error: " + err.message);
+                    status.innerText = "Error";
+                });
+            } else { 
+                alert("GPS not supported"); 
+            }
+        }
+    </script>
 </body>
 </html>
